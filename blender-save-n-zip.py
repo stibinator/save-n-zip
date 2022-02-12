@@ -5,15 +5,15 @@
 
 ############# Add-on description (used by Blender)
 bl_info = {
-    "name": "Save-n-zip",
+    "name": "Save-n-Zip",
     "description": 'Save your file with incremental archived backups',
     "author": "stib, thanks to Lapineige for the bare bones",
     "version": (0, 1),
     "blender": (2, 80, 0),
-    "location": "File > Save-n-zip",
+    "location": "File > Save-n-Zip",
     "warning": "",
     "wiki_url": "",
-    "tracker_url": "https://blob.pureandapplied.com.au/save-n-zip",
+    "tracker_url": "https://blob.pureandapplied.com.au/save-n-Zip",
     "category": "System"}
 
 ##############
@@ -25,7 +25,7 @@ tempFileName = "saveNzipTemp.blend"
 
 class FileSaveAndZip(bpy.types.Operator):
     bl_idname = "file.save_n_zip"
-    bl_label = "Save N zip"
+    bl_label = "Save N Zip"
    
     def execute(self, context):\
         # full path to current project, if it has been saved
@@ -79,14 +79,35 @@ class FileSaveAndZip(bpy.types.Operator):
          
             ##self.report({'INFO'}, "File: {0} - Created at: {1}".format(output[len(bpy.path.abspath(d_sep)):], output[:len(bpy.path.abspath(d_sep))]))
         else:
-            #a modal dialog or invoking the save as window would be much better
-            self.report({'WARNING'}, "Please save the file before incrementally saving")
+            # file has yet to be saved
+            bpy.ops.wm.save_mainfile('INVOKE_AREA')
         return {'FINISHED'}
  
 def draw_into_file_menu(self,context):
     self.layout.separator()
     self.layout.operator('file.save_n_zip')
-    
+  
+
+class SaveNZipPreferences(bpy.types.AddonPreferences):
+    # this must match the addon name, use '__package__'
+    # when defining this in a submodule of a python package.
+    bl_idname = __name__
+
+    category: bpy.props.StringProperty(
+            name = "Zip method",
+            description = "Choose the zip compression method",
+            default = "Edit",
+            # update = update_panel()
+            )
+
+    def draw(self, context):
+        layout = self.layout
+
+        row = layout.row()
+        col = row.column()
+        col.label(text = "Compression method:")
+        col.prop(self, "category", text = "")
+            
 def register():
     bpy.utils.register_class(FileSaveAndZip)
     bpy.types.TOPBAR_MT_file.append(draw_into_file_menu)
